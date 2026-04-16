@@ -233,7 +233,8 @@ function navigateTo(page) {
     kanwil: 'Kantor Wilayah',
     tingkatan: 'Tingkatan Beasiswa',
     kriteria: 'Kriteria & Bobot SAW',
-    laporan: 'Laporan'
+    laporan: 'Laporan',
+    tentang: 'Tentang Sistem'
   };
   document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
   
@@ -254,6 +255,7 @@ function loadPageData(page) {
     case 'tingkatan': loadTingkatan(); break;
     case 'kriteria': loadKriteria(); break;
     case 'laporan': loadLaporan(); break;
+    case 'tentang': break; // static page, no data to load
   }
 }
 
