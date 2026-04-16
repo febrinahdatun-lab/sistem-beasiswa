@@ -43,6 +43,31 @@ const API = {
     return this.call('googleLogin', { credential });
   },
 
+  // ---- Public (Guest) endpoints ----
+  getPublicDashboard() { return this.callPublic('getPublicDashboard'); },
+  getPublicPendaftar() { return this.callPublic('getPublicPendaftar'); },
+  getPublicSeleksi() { return this.callPublic('getPublicSeleksi'); },
+
+  /**
+   * Public request (no auth token)
+   */
+  async callPublic(action, data = {}) {
+    const payload = { action, ...data };
+    try {
+      const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+        redirect: 'follow'
+      });
+      if (!response.ok) throw new Error('Network error: ' + response.status);
+      return await response.json();
+    } catch (error) {
+      console.error('Public API Error:', error);
+      return null;
+    }
+  },
+
   // ---- Pendaftar ----
   getPendaftar() { return this.call('getPendaftar'); },
   addPendaftar(pendaftar) { return this.call('addPendaftar', { pendaftar }); },

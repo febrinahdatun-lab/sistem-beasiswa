@@ -125,6 +125,40 @@ input, select, textarea, button {
   color: var(--text-secondary);
 }
 
+/* Guest Button */
+.btn-guest {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-guest:hover {
+  background: var(--bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Guest Banner */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #fef3c7, #fef9c3);
+  border-bottom: 1px solid #fbbf24;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+.guest-banner i { color: #d97706; }
+
 /* ==================== FORM ELEMENTS ==================== */
 
 .form-group {
@@ -328,8 +362,9 @@ input, select, textarea, button {
   align-items: center;
   gap: 12px;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   letter-spacing: 0.5px;
+  line-height: 1.3;
 }
 
 .sidebar-logo i {
@@ -615,6 +650,36 @@ input, select, textarea, button {
   font-size: 0.82rem;
   color: var(--text-secondary);
   font-weight: 500;
+}
+
+/* ==================== WELCOME CARD ==================== */
+
+.welcome-card {
+  background: linear-gradient(135deg, #1a56db 0%, #3b82f6 50%, #60a5fa 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px 30px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  box-shadow: 0 4px 15px rgba(26, 86, 219, 0.3);
+}
+
+.welcome-content h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.welcome-content p {
+  opacity: 0.85;
+  font-size: 0.9rem;
+}
+
+.welcome-icon {
+  font-size: 3rem;
+  opacity: 0.3;
 }
 
 /* ==================== CHARTS ==================== */

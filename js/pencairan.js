@@ -6,6 +6,23 @@
 let pencairanData = [];
 
 async function loadPencairan() {
+  // Try cache first for instant render
+  if (dataStore.pencairan) {
+    pencairanData = dataStore.pencairan;
+    renderPencairanTable();
+    renderPencairanSummary();
+    // Refresh in background
+    API.getPencairan().then(r => {
+      if (r && r.success) {
+        dataStore.pencairan = r.data;
+        pencairanData = r.data;
+        renderPencairanTable();
+        renderPencairanSummary();
+      }
+    });
+    return;
+  }
+  
   showLoading('Memuat data pencairan...');
   const result = await API.getPencairan();
   hideLoading();
@@ -16,6 +33,7 @@ async function loadPencairan() {
   }
   
   pencairanData = result.data || [];
+  dataStore.pencairan = pencairanData;
   renderPencairanTable();
   renderPencairanSummary();
 }

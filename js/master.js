@@ -8,6 +8,16 @@
 let kanwilList = [];
 
 async function loadKanwil() {
+  // Try cache first
+  if (dataStore.kanwil) {
+    kanwilList = dataStore.kanwil;
+    renderKanwilTable();
+    API.getKanwil().then(r => {
+      if (r && r.success) { dataStore.kanwil = r.data; kanwilList = r.data; renderKanwilTable(); }
+    });
+    return;
+  }
+  
   showLoading('Memuat data kanwil...');
   const result = await API.getKanwil();
   hideLoading();
@@ -18,7 +28,7 @@ async function loadKanwil() {
   }
   
   kanwilList = result.data || [];
-  kanwilCache = kanwilList; // Update global cache
+  dataStore.kanwil = kanwilList;
   renderKanwilTable();
 }
 
@@ -171,6 +181,15 @@ async function doDeleteKanwil(kode) {
 let tingkatanList = [];
 
 async function loadTingkatan() {
+  if (dataStore.tingkatan) {
+    tingkatanList = dataStore.tingkatan;
+    renderTingkatanTable();
+    API.getTingkatan().then(r => {
+      if (r && r.success) { dataStore.tingkatan = r.data; tingkatanList = r.data; renderTingkatanTable(); }
+    });
+    return;
+  }
+  
   showLoading('Memuat data tingkatan...');
   const result = await API.getTingkatan();
   hideLoading();
@@ -181,7 +200,7 @@ async function loadTingkatan() {
   }
   
   tingkatanList = result.data || [];
-  tingkatanCache = tingkatanList; // Update global cache
+  dataStore.tingkatan = tingkatanList;
   renderTingkatanTable();
 }
 
@@ -334,6 +353,15 @@ async function doDeleteTingkatan(kode) {
 let kriteriaList = [];
 
 async function loadKriteria() {
+  if (dataStore.kriteria) {
+    kriteriaList = dataStore.kriteria;
+    renderKriteriaTable();
+    API.getKriteria().then(r => {
+      if (r && r.success) { dataStore.kriteria = r.data; kriteriaList = r.data; renderKriteriaTable(); }
+    });
+    return;
+  }
+  
   showLoading('Memuat data kriteria...');
   const result = await API.getKriteria();
   hideLoading();
@@ -344,6 +372,7 @@ async function loadKriteria() {
   }
   
   kriteriaList = result.data || [];
+  dataStore.kriteria = kriteriaList;
   renderKriteriaTable();
 }
 

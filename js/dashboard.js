@@ -5,8 +5,23 @@
 let chartInstances = {};
 
 async function loadDashboard() {
+  // Try cache first for instant render
+  if (dataStore.dashboard) {
+    renderDashboardData(dataStore.dashboard);
+    // Refresh in background
+    if (!isGuest()) {
+      API.getDashboard().then(r => {
+        if (r && r.success) {
+          dataStore.dashboard = r.data;
+          renderDashboardData(r.data);
+        }
+      });
+    }
+    return;
+  }
+  
   showLoading('Memuat dashboard...');
-  const result = await API.getDashboard();
+  const result = isGuest() ? await API.getPublicDashboard() : await API.getDashboard();
   hideLoading();
   
   if (!result || !result.success) {
@@ -14,8 +29,11 @@ async function loadDashboard() {
     return;
   }
   
-  const data = result.data;
-  
+  dataStore.dashboard = result.data;
+  renderDashboardData(result.data);
+}
+
+function renderDashboardData(data) {
   // Update stat cards
   document.getElementById('statTotal').textContent = data.summary.totalPendaftar;
   document.getElementById('statAktif').textContent = data.summary.aktif;

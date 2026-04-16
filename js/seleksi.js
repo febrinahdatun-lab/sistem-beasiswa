@@ -6,8 +6,25 @@
 let seleksiData = [];
 
 async function loadSeleksi() {
+  // Try cache first for instant render
+  if (dataStore.seleksi) {
+    seleksiData = dataStore.seleksi;
+    renderSeleksiTable();
+    // Refresh in background
+    if (!isGuest()) {
+      API.getSeleksi().then(r => {
+        if (r && r.success) {
+          dataStore.seleksi = r.data;
+          seleksiData = r.data;
+          renderSeleksiTable();
+        }
+      });
+    }
+    return;
+  }
+  
   showLoading('Memuat data seleksi...');
-  const result = await API.getSeleksi();
+  const result = isGuest() ? await API.getPublicSeleksi() : await API.getSeleksi();
   hideLoading();
   
   if (!result || !result.success) {
@@ -16,6 +33,7 @@ async function loadSeleksi() {
   }
   
   seleksiData = result.data || [];
+  dataStore.seleksi = seleksiData;
   renderSeleksiTable();
 }
 
@@ -23,8 +41,10 @@ function renderSeleksiTable() {
   const tbody = document.getElementById('bodySeleksi');
   if (!tbody) return;
   
+  const guest = isGuest();
+  
   if (seleksiData.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><i class="fas fa-check-double"></i><h4>Belum Ada Data Seleksi</h4><p>Klik "Input Nilai Seleksi" untuk menambahkan data penilaian</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><i class="fas fa-check-double"></i><h4>Belum Ada Data Seleksi</h4>' + (guest ? '' : '<p>Klik "Input Nilai Seleksi" untuk menambahkan data penilaian</p>') + '</div></td></tr>';
     return;
   }
   
@@ -36,20 +56,20 @@ function renderSeleksiTable() {
   
   tbody.innerHTML = sorted.map((s, i) => `
     <tr>
-      <td><input type="checkbox" class="seleksiCheck" value="${s.id_pendaftar}"></td>
+      <td>${!guest ? `<input type="checkbox" class="seleksiCheck" value="${s.id_pendaftar}">` : ''}</td>
       <td>${i + 1}</td>
       <td><strong>${escapeHtml(s.nama_pendaftar)}</strong></td>
-      <td>${s.c1_nilai_akhir || '-'}</td>
-      <td>${s.c2_penghasilan_ortu ? formatCurrency(s.c2_penghasilan_ortu) : '-'}</td>
-      <td>${s.c3_nilai_psikotes || '-'}</td>
-      <td>${s.c4_nilai_survey || '-'}</td>
-      <td>${s.c5_umur || '-'}</td>
-      <td>${s.c6_jumlah_tanggungan || '-'}</td>
+      <td>${guest ? '-' : (s.c1_nilai_akhir || '-')}</td>
+      <td>${guest ? '-' : (s.c2_penghasilan_ortu ? formatCurrency(s.c2_penghasilan_ortu) : '-')}</td>
+      <td>${guest ? '-' : (s.c3_nilai_psikotes || '-')}</td>
+      <td>${guest ? '-' : (s.c4_nilai_survey || '-')}</td>
+      <td>${guest ? '-' : (s.c5_umur || '-')}</td>
+      <td>${guest ? '-' : (s.c6_jumlah_tanggungan || '-')}</td>
       <td><strong style="color:var(--primary);">${s.skor_saw ? parseFloat(s.skor_saw).toFixed(4) : '-'}</strong></td>
       <td>${s.ranking ? '<span class="badge badge-primary">#' + s.ranking + '</span>' : '-'}</td>
       <td>${getStatusBadge(s.status_seleksi || 'belum_dihitung')}</td>
       <td>
-        <div class="action-btns">
+        ${!guest ? `<div class="action-btns">
           <button class="btn btn-sm btn-warning" onclick="editSeleksiNilai(${i})" title="Edit Nilai">
             <i class="fas fa-edit"></i>
           </button>
@@ -62,7 +82,7 @@ function renderSeleksiTable() {
           <button class="btn btn-sm btn-info" onclick="sendSeleksiEmail('${s.id_pendaftar}')" title="Kirim Email">
             <i class="fas fa-envelope"></i>
           </button>
-        </div>
+        </div>` : ''}
       </td>
     </tr>
   `).join('');

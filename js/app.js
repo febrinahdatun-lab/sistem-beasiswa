@@ -11,6 +11,18 @@ let currentPage = 'dashboard';
 let cacheKanwil = [];
 let cacheTingkatan = [];
 
+// ==================== DATA STORE (prefetch cache) ====================
+const dataStore = {
+  dashboard: null,
+  pendaftar: null,
+  seleksi: null,
+  pencairan: null,
+  kanwil: null,
+  tingkatan: null,
+  kriteria: null,
+  _ready: false
+};
+
 // ==================== INITIALIZATION ====================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -48,16 +60,20 @@ function checkAuth() {
   const token = sessionStorage.getItem(CONFIG.TOKEN_KEY);
   const userStr = sessionStorage.getItem(CONFIG.USER_KEY);
   
-  if (token && userStr) {
+  if (userStr) {
     try {
       currentUser = JSON.parse(userStr);
-      showApp();
+      // Guest doesn't need a token
+      if (currentUser.level === 'guest' || token) {
+        showApp();
+        if (currentUser.level === 'guest') prefetchPublicData();
+        return;
+      }
     } catch {
-      showLoginPage();
+      // fall through
     }
-  } else {
-    showLoginPage();
   }
+  showLoginPage();
 }
 
 function showLoginPage() {
@@ -75,15 +91,87 @@ function showApp() {
   badge.textContent = getLevelLabel(currentUser.level);
   badge.className = 'user-badge';
   
+  // Update welcome message
+  const welcomeEl = document.getElementById('welcomeMsg');
+  if (welcomeEl) {
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Selamat Pagi' : hour < 17 ? 'Selamat Siang' : 'Selamat Malam';
+    welcomeEl.textContent = greeting + ', ' + (currentUser.nama_lengkap || currentUser.username) + '!';
+  }
+  
   // Apply role-based visibility
   applyRoleVisibility();
   
-  // Load initial caches and dashboard
+  // Load initial caches and prefetch all data
   loadCaches();
+  prefetchAllData();
   navigateTo('dashboard');
 }
 
+// ==================== DATA PREFETCH ====================
+
+async function prefetchAllData() {
+  if (isGuest()) return; // Guest uses public endpoints
+  
+  // Fire all requests in parallel
+  const keys = ['dashboard', 'pendaftar', 'seleksi', 'pencairan', 'kanwil', 'tingkatan', 'kriteria'];
+  const fetchers = [
+    API.getDashboard(),
+    API.getPendaftar(),
+    API.getSeleksi(),
+    API.getPencairan(),
+    API.getKanwil(),
+    API.getTingkatan(),
+    API.getKriteria()
+  ];
+  
+  const results = await Promise.allSettled(fetchers);
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled' && r.value && r.value.success) {
+      dataStore[keys[i]] = r.value.data;
+    }
+  });
+  dataStore._ready = true;
+}
+
+function refreshPageData(page) {
+  // Invalidate cache for the page so next load fetches fresh
+  dataStore[page] = null;
+}
+
 // ==================== LOGIN / LOGOUT ====================
+
+function isGuest() {
+  return currentUser && currentUser.level === 'guest';
+}
+
+function enterAsGuest() {
+  currentUser = {
+    user_id: 'GUEST',
+    username: 'tamu',
+    nama_lengkap: 'Tamu',
+    level: 'guest',
+    email: ''
+  };
+  sessionStorage.setItem(CONFIG.USER_KEY, JSON.stringify(currentUser));
+  showApp();
+  // Prefetch public data for guest
+  prefetchPublicData();
+}
+
+async function prefetchPublicData() {
+  const [dashRes, pendRes, selRes] = await Promise.allSettled([
+    API.getPublicDashboard(),
+    API.getPublicPendaftar(),
+    API.getPublicSeleksi()
+  ]);
+  if (dashRes.status === 'fulfilled' && dashRes.value && dashRes.value.success) dataStore.dashboard = dashRes.value.data;
+  if (pendRes.status === 'fulfilled' && pendRes.value && pendRes.value.success) dataStore.pendaftar = pendRes.value.data;
+  if (selRes.status === 'fulfilled' && selRes.value && selRes.value.success) dataStore.seleksi = selRes.value.data;
+  dataStore._ready = true;
+  // Re-render current page with data
+  loadPageData(currentPage);
+}
 
 async function handleGoogleSignIn(response) {
   // Hide error, show loading
@@ -112,6 +200,10 @@ function handleLogout() {
   sessionStorage.removeItem(CONFIG.TOKEN_KEY);
   sessionStorage.removeItem(CONFIG.USER_KEY);
   currentUser = null;
+  
+  // Clear data cache
+  Object.keys(dataStore).forEach(k => { if (k !== '_ready') dataStore[k] = null; });
+  dataStore._ready = false;
   
   // Revoke Google session
   if (typeof google !== 'undefined' && google.accounts) {
@@ -183,19 +275,37 @@ function loadPageData(page) {
 
 function applyRoleVisibility() {
   const level = currentUser ? currentUser.level : '';
+  const guest = isGuest();
+  
+  // Show/hide guest banner
+  const banner = document.getElementById('guestBanner');
+  if (banner) banner.style.display = guest ? 'flex' : 'none';
   
   // Hide nav items based on roles
   document.querySelectorAll('[data-roles]').forEach(el => {
     const roles = el.dataset.roles.split(',').map(r => r.trim());
-    el.style.display = roles.includes(level) ? '' : 'none';
+    if (guest) {
+      // Guest can only see items without data-roles or explicitly allowed
+      el.style.display = roles.includes('guest') ? '' : 'none';
+    } else {
+      el.style.display = roles.includes(level) ? '' : 'none';
+    }
   });
+  
+  // Hide all action buttons for guest
+  if (guest) {
+    document.querySelectorAll('.page-actions .btn-primary, .page-actions .btn-success').forEach(btn => {
+      btn.style.display = 'none';
+    });
+  }
 }
 
 function getLevelLabel(level) {
   const labels = {
     admin: 'Administrator',
     pic: 'PIC Program',
-    manager: 'Manager'
+    manager: 'Manager',
+    guest: 'Tamu'
   };
   return labels[level] || level;
 }
