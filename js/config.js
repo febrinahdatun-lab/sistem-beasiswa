@@ -4,11 +4,11 @@
  */
 const CONFIG = {
   // URL Web App dari Google Apps Script (ganti setelah deploy)
-  APPS_SCRIPT_URL: 'YOUR_APPS_SCRIPT_DEPLOYMENT_URL_HERE',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwCItvWlzR6EC9qHPozJ7RzKEqmCLagBbpr0VKPCwXInNc66Y0Bh7HbRQLz5549IJDT/exec',
   
   // Google OAuth Client ID (dari Google Cloud Console)
   // Ini BUKAN rahasia - Client ID memang harus di frontend untuk Google Sign-In
-  GOOGLE_CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID_HERE',
+  GOOGLE_CLIENT_ID: '491099453450-htge0pkh59nke6dn4qptpm6voukb3dk4.apps.googleusercontent.com',
   
   // App info
   APP_NAME: 'Sistem Pembiayaan Beasiswa',
