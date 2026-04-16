@@ -103,8 +103,10 @@ function showApp() {
   applyRoleVisibility();
   
   // Load initial caches and prefetch all data
-  loadCaches();
-  prefetchAllData();
+  if (!isGuest()) {
+    loadCaches();
+    prefetchAllData();
+  }
   navigateTo('dashboard');
 }
 

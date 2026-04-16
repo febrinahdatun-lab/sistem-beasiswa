@@ -23,8 +23,11 @@ const API = {
 
       const result = await response.json();
       
-      // Handle session expired
+      // Handle session expired (skip for guest)
       if (result.message && result.message.includes('Sesi tidak valid')) {
+        if (typeof isGuest === 'function' && isGuest()) {
+          return result;
+        }
         showToast('Sesi telah berakhir, silakan login kembali', 'warning');
         handleLogout();
         return null;
