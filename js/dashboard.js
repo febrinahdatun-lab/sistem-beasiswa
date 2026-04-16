@@ -9,19 +9,17 @@ async function loadDashboard() {
   if (dataStore.dashboard) {
     renderDashboardData(dataStore.dashboard);
     // Refresh in background
-    if (!isGuest()) {
-      API.getDashboard().then(r => {
-        if (r && r.success) {
-          dataStore.dashboard = r.data;
-          renderDashboardData(r.data);
-        }
-      });
-    }
+    API.getDashboard().then(r => {
+      if (r && r.success) {
+        dataStore.dashboard = r.data;
+        renderDashboardData(r.data);
+      }
+    });
     return;
   }
   
   showLoading('Memuat dashboard...');
-  const result = isGuest() ? await API.getPublicDashboard() : await API.getDashboard();
+  const result = await API.getDashboard();
   hideLoading();
   
   if (!result || !result.success) {

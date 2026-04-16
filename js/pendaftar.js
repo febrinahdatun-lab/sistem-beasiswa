@@ -10,20 +10,18 @@ async function loadPendaftar() {
     pendaftarData = dataStore.pendaftar;
     renderPendaftarTable();
     // Refresh in background
-    if (!isGuest()) {
-      API.getPendaftar().then(r => {
-        if (r && r.success) {
-          dataStore.pendaftar = r.data;
-          pendaftarData = r.data;
-          renderPendaftarTable();
-        }
-      });
-    }
+    API.getPendaftar().then(r => {
+      if (r && r.success) {
+        dataStore.pendaftar = r.data;
+        pendaftarData = r.data;
+        renderPendaftarTable();
+      }
+    });
     return;
   }
   
   showLoading('Memuat data pendaftar...');
-  const result = isGuest() ? await API.getPublicPendaftar() : await API.getPendaftar();
+  const result = await API.getPendaftar();
   hideLoading();
   
   if (!result || !result.success) {
@@ -40,10 +38,8 @@ function renderPendaftarTable() {
   const tbody = document.getElementById('bodyPendaftar');
   if (!tbody) return;
   
-  const guest = isGuest();
-  
   if (pendaftarData.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users"></i><h4>Belum Ada Data Pendaftar</h4>' + (guest ? '' : '<p>Klik "Tambah Pendaftar" untuk menambahkan data baru</p>') + '</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users"></i><h4>Belum Ada Data Pendaftar</h4><p>Klik "Tambah Pendaftar" untuk menambahkan data baru</p></div></td></tr>';
     return;
   }
   
@@ -58,7 +54,7 @@ function renderPendaftarTable() {
       <td>${formatDate(p.created_at)}</td>
       <td>
         <div class="action-btns">
-          ${!guest ? `<button class="btn btn-sm btn-info" onclick="viewPendaftar(${i})" title="Detail">
+          <button class="btn btn-sm btn-info" onclick="viewPendaftar(${i})" title="Detail">
             <i class="fas fa-eye"></i>
           </button>
           <button class="btn btn-sm btn-warning" onclick="editPendaftar(${i})" title="Edit" ${currentUser.level !== 'admin' ? 'style="display:none"' : ''}>
@@ -66,7 +62,7 @@ function renderPendaftarTable() {
           </button>
           <button class="btn btn-sm btn-danger" onclick="confirmDeletePendaftar('${p.id_pendaftar}', '${escapeHtml(p.nama_pendaftar)}')" title="Hapus" ${currentUser.level !== 'admin' ? 'style="display:none"' : ''}>
             <i class="fas fa-trash"></i>
-          </button>` : '<span class="badge badge-secondary">Lihat saja</span>'}
+          </button>
         </div>
       </td>
     </tr>
