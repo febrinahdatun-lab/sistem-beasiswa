@@ -4,7 +4,7 @@
  */
 const CONFIG = {
   // URL Web App dari Google Apps Script (ganti setelah deploy)
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzN72-edGpsdgVuxaOCsLlgblCN9BBYdo4iA0d1JGySj9pxVf3A0YxXtgqz9xdfh5IA/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby4QUKcQO8f5pnvIoJ6Gj_7OITLFXFinmLPhxNU4TgqIl9I0-3gdPpf8gUM1TJHj_o5/exec',
   
   // Google OAuth Client ID (dari Google Cloud Console)
   // Ini BUKAN rahasia - Client ID memang harus di frontend untuk Google Sign-In
