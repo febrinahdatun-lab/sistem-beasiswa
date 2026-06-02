@@ -7,65 +7,65 @@ let laporanData = [];
 let currentReportType = '';
 
 async function loadLaporan() {
-  const wrapper = document.getElementById('laporanContent');
-  if (wrapper) {
-    wrapper.innerHTML = `
+    const wrapper = document.getElementById('laporanContent');
+    if (wrapper) {
+        wrapper.innerHTML = `
       <div class="empty-state">
         <i class="fas fa-file-alt"></i>
         <h4>Pilih Jenis Laporan</h4>
         <p>Gunakan dropdown di atas untuk memilih jenis laporan yang ingin ditampilkan</p>
       </div>
     `;
-  }
+    }
 }
 
 async function generateLaporan() {
-  const selectEl = document.getElementById('reportType');
-  if (!selectEl) return;
-  
-  currentReportType = selectEl.value;
-  
-  if (!currentReportType) {
-    showToast('Pilih jenis laporan terlebih dahulu', 'warning');
-    return;
-  }
-  
-  showLoading('Mengambil data laporan...');
-  const result = await API.getLaporan(currentReportType);
-  hideLoading();
-  
-  if (!result || !result.success) {
-    showToast('Gagal memuat laporan', 'error');
-    return;
-  }
-  
-  laporanData = result.data || [];
-  
-  switch (currentReportType) {
-    case 'pendaftar':
-      renderLaporanPendaftar();
-      break;
-    case 'seleksi':
-      renderLaporanSeleksi();
-      break;
-    case 'pencairan':
-      renderLaporanPencairan();
-      break;
-    case 'penyaluran':
-      renderLaporanPenyaluran();
-      break;
-    default:
-      showToast('Jenis laporan tidak dikenali', 'warning');
-  }
+    const selectEl = document.getElementById('reportType');
+    if (!selectEl) return;
+
+    currentReportType = selectEl.value;
+
+    if (!currentReportType) {
+        showToast('Pilih jenis laporan terlebih dahulu', 'warning');
+        return;
+    }
+
+    showLoading('Mengambil data laporan...');
+    const result = await API.getLaporan(currentReportType);
+    hideLoading();
+
+    if (!result || !result.success) {
+        showToast('Gagal memuat laporan', 'error');
+        return;
+    }
+
+    laporanData = result.data || [];
+
+    switch (currentReportType) {
+        case 'pendaftar':
+            renderLaporanPendaftar();
+            break;
+        case 'seleksi':
+            renderLaporanSeleksi();
+            break;
+        case 'pencairan':
+            renderLaporanPencairan();
+            break;
+        case 'penyaluran':
+            renderLaporanPenyaluran();
+            break;
+        default:
+            showToast('Jenis laporan tidak dikenali', 'warning');
+    }
 }
 
 function renderLaporanPendaftar() {
-  const wrapper = document.getElementById('laporanContent');
-  if (!wrapper) return;
-  
-  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  
-  wrapper.innerHTML = `
+    const wrapper = document.getElementById('laporanContent');
+    if (!wrapper) return;
+
+    const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    wrapper.innerHTML = `
     <div class="report-container" id="reportPrintArea">
       <div class="report-header">
         <h2 style="margin:0;color:var(--primary);">LAPORAN DATA PENDAFTAR BEASISWA</h2>
@@ -92,7 +92,7 @@ function renderLaporanPendaftar() {
           </tr>
         </thead>
         <tbody>
-          ${laporanData.length === 0 
+          ${laporanData.length === 0
             ? '<tr><td colspan="8" style="text-align:center;">Tidak ada data</td></tr>'
             : laporanData.map((p, i) => `
             <tr>
@@ -113,14 +113,14 @@ function renderLaporanPendaftar() {
 }
 
 function renderLaporanSeleksi() {
-  const wrapper = document.getElementById('laporanContent');
-  if (!wrapper) return;
-  
-  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  const lulus = laporanData.filter(s => s.status_seleksi === 'lulus').length;
-  const tidakLulus = laporanData.filter(s => s.status_seleksi === 'tidak_lulus').length;
-  
-  wrapper.innerHTML = `
+    const wrapper = document.getElementById('laporanContent');
+    if (!wrapper) return;
+
+    const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const lulus = laporanData.filter(s => s.status_seleksi === 'lulus').length;
+    const tidakLulus = laporanData.filter(s => s.status_seleksi === 'tidak_lulus').length;
+
+    wrapper.innerHTML = `
     <div class="report-container" id="reportPrintArea">
       <div class="report-header">
         <h2 style="margin:0;color:var(--primary);">LAPORAN HASIL SELEKSI BEASISWA</h2>
@@ -174,14 +174,14 @@ function renderLaporanSeleksi() {
 }
 
 function renderLaporanPencairan() {
-  const wrapper = document.getElementById('laporanContent');
-  if (!wrapper) return;
-  
-  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  const totalCair = laporanData.filter(p => p.status_pencairan === 'cair');
-  const totalNominal = totalCair.reduce((sum, p) => sum + (parseFloat(p.nominal) || 0), 0);
-  
-  wrapper.innerHTML = `
+    const wrapper = document.getElementById('laporanContent');
+    if (!wrapper) return;
+
+    const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const totalCair = laporanData.filter(p => p.status_pencairan === 'cair');
+    const totalNominal = totalCair.reduce((sum, p) => sum + (parseFloat(p.nominal) || 0), 0);
+
+    wrapper.innerHTML = `
     <div class="report-container" id="reportPrintArea">
       <div class="report-header">
         <h2 style="margin:0;color:var(--primary);">LAPORAN PENCAIRAN DANA BEASISWA</h2>
@@ -235,24 +235,24 @@ function renderLaporanPencairan() {
 }
 
 function renderLaporanPenyaluran() {
-  const wrapper = document.getElementById('laporanContent');
-  if (!wrapper) return;
-  
-  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  
-  // Group by kanwil
-  const byKanwil = {};
-  laporanData.forEach(item => {
-    const kw = item.kanwil || 'Tidak Diketahui';
-    if (!byKanwil[kw]) byKanwil[kw] = { count: 0, nominal: 0, items: [] };
-    byKanwil[kw].count++;
-    byKanwil[kw].nominal += parseFloat(item.nominal) || 0;
-    byKanwil[kw].items.push(item);
-  });
-  
-  const grandTotal = Object.values(byKanwil).reduce((sum, kw) => sum + kw.nominal, 0);
-  
-  wrapper.innerHTML = `
+    const wrapper = document.getElementById('laporanContent');
+    if (!wrapper) return;
+
+    const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    // Group by kanwil
+    const byKanwil = {};
+    laporanData.forEach(item => {
+        const kw = item.kanwil || 'Tidak Diketahui';
+        if (!byKanwil[kw]) byKanwil[kw] = { count: 0, nominal: 0, items: [] };
+        byKanwil[kw].count++;
+        byKanwil[kw].nominal += parseFloat(item.nominal) || 0;
+        byKanwil[kw].items.push(item);
+    });
+
+    const grandTotal = Object.values(byKanwil).reduce((sum, kw) => sum + kw.nominal, 0);
+
+    wrapper.innerHTML = `
     <div class="report-container" id="reportPrintArea">
       <div class="report-header">
         <h2 style="margin:0;color:var(--primary);">LAPORAN PENYALURAN BEASISWA PER KANWIL</h2>
@@ -275,8 +275,8 @@ function renderLaporanPenyaluran() {
           ${Object.keys(byKanwil).length === 0
             ? '<tr><td colspan="5" style="text-align:center;">Tidak ada data</td></tr>'
             : Object.entries(byKanwil).map(([kw, data], i) => {
-              const pct = grandTotal > 0 ? ((data.nominal / grandTotal) * 100).toFixed(1) : 0;
-              return `
+                const pct = grandTotal > 0 ? ((data.nominal / grandTotal) * 100).toFixed(1) : 0;
+                return `
               <tr>
                 <td>${i + 1}</td>
                 <td><strong>${escapeHtml(kw)}</strong></td>
@@ -307,78 +307,78 @@ function renderLaporanPenyaluran() {
 }
 
 function exportLaporan() {
-  if (laporanData.length === 0) {
-    showToast('Tidak ada data untuk di-export', 'warning');
-    return;
-  }
-  
-  let csvContent = '';
-  let filename = '';
-  
-  switch (currentReportType) {
-    case 'pendaftar':
-      filename = 'laporan_pendaftar.csv';
-      csvContent = 'No,No Registrasi,Nama,Jenis Kelamin,Tingkatan,Kanwil,Status,Tanggal Daftar\n';
-      laporanData.forEach((p, i) => {
-        csvContent += `${i + 1},"${p.no_registrasi || ''}","${p.nama_pendaftar || ''}","${p.jenis_kelamin || ''}","${p.tingkatan || ''}","${p.kanwil || ''}","${p.status || ''}","${p.tanggal_daftar || ''}"\n`;
-      });
-      break;
-      
-    case 'seleksi':
-      filename = 'laporan_seleksi.csv';
-      csvContent = 'Ranking,Nama,C1 Nilai Akhir,C2 Penghasilan Ortu,C3 Psikotes,C4 Survey,C5 Umur,C6 Tanggungan,Skor SAW,Status\n';
-      laporanData.sort((a, b) => (a.ranking || 999) - (b.ranking || 999)).forEach(s => {
-        csvContent += `${s.ranking || ''},"${s.nama_pendaftar || ''}",${s.c1_nilai_akhir || ''},${s.c2_penghasilan_ortu || ''},${s.c3_nilai_psikotes || ''},${s.c4_nilai_survey || ''},${s.c5_umur || ''},${s.c6_jumlah_tanggungan || ''},${s.skor_saw || ''},"${s.status_seleksi || ''}"\n`;
-      });
-      break;
-      
-    case 'pencairan':
-      filename = 'laporan_pencairan.csv';
-      csvContent = 'No,Nama,No Rekening,Bank,Nominal,Periode,Tanggal Cair,Status\n';
-      laporanData.forEach((p, i) => {
-        csvContent += `${i + 1},"${p.nama_pendaftar || ''}","${p.no_rekening || ''}","${p.nama_bank || ''}",${p.nominal || ''},"${p.periode || ''}","${p.tanggal_cair || ''}","${p.status_pencairan || ''}"\n`;
-      });
-      break;
-      
-    case 'penyaluran':
-      filename = 'laporan_penyaluran_kanwil.csv';
-      csvContent = 'No,Kanwil,Jumlah Penerima,Total Nominal\n';
-      const byKanwil = {};
-      laporanData.forEach(item => {
-        const kw = item.kanwil || 'Tidak Diketahui';
-        if (!byKanwil[kw]) byKanwil[kw] = { count: 0, nominal: 0 };
-        byKanwil[kw].count++;
-        byKanwil[kw].nominal += parseFloat(item.nominal) || 0;
-      });
-      Object.entries(byKanwil).forEach(([kw, data], i) => {
-        csvContent += `${i + 1},"${kw}",${data.count},${data.nominal}\n`;
-      });
-      break;
-  }
-  
-  // Create download using BOM for proper encoding in Excel
-  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  showToast('Berhasil export ke ' + filename, 'success');
+    if (laporanData.length === 0) {
+        showToast('Tidak ada data untuk di-export', 'warning');
+        return;
+    }
+
+    let csvContent = '';
+    let filename = '';
+
+    switch (currentReportType) {
+        case 'pendaftar':
+            filename = 'laporan_pendaftar.csv';
+            csvContent = 'No,No Registrasi,Nama,Jenis Kelamin,Tingkatan,Kanwil,Status,Tanggal Daftar\n';
+            laporanData.forEach((p, i) => {
+                csvContent += `${i + 1},"${p.no_registrasi || ''}","${p.nama_pendaftar || ''}","${p.jenis_kelamin || ''}","${p.tingkatan || ''}","${p.kanwil || ''}","${p.status || ''}","${p.tanggal_daftar || ''}"\n`;
+            });
+            break;
+
+        case 'seleksi':
+            filename = 'laporan_seleksi.csv';
+            csvContent = 'Ranking,Nama,C1 Nilai Akhir,C2 Penghasilan Ortu,C3 Psikotes,C4 Survey,C5 Umur,C6 Tanggungan,Skor SAW,Status\n';
+            laporanData.sort((a, b) => (a.ranking || 999) - (b.ranking || 999)).forEach(s => {
+                csvContent += `${s.ranking || ''},"${s.nama_pendaftar || ''}",${s.c1_nilai_akhir || ''},${s.c2_penghasilan_ortu || ''},${s.c3_nilai_psikotes || ''},${s.c4_nilai_survey || ''},${s.c5_umur || ''},${s.c6_jumlah_tanggungan || ''},${s.skor_saw || ''},"${s.status_seleksi || ''}"\n`;
+            });
+            break;
+
+        case 'pencairan':
+            filename = 'laporan_pencairan.csv';
+            csvContent = 'No,Nama,No Rekening,Bank,Nominal,Periode,Tanggal Cair,Status\n';
+            laporanData.forEach((p, i) => {
+                csvContent += `${i + 1},"${p.nama_pendaftar || ''}","${p.no_rekening || ''}","${p.nama_bank || ''}",${p.nominal || ''},"${p.periode || ''}","${p.tanggal_cair || ''}","${p.status_pencairan || ''}"\n`;
+            });
+            break;
+
+        case 'penyaluran':
+            filename = 'laporan_penyaluran_kanwil.csv';
+            csvContent = 'No,Kanwil,Jumlah Penerima,Total Nominal\n';
+            const byKanwil = {};
+            laporanData.forEach(item => {
+                const kw = item.kanwil || 'Tidak Diketahui';
+                if (!byKanwil[kw]) byKanwil[kw] = { count: 0, nominal: 0 };
+                byKanwil[kw].count++;
+                byKanwil[kw].nominal += parseFloat(item.nominal) || 0;
+            });
+            Object.entries(byKanwil).forEach(([kw, data], i) => {
+                csvContent += `${i + 1},"${kw}",${data.count},${data.nominal}\n`;
+            });
+            break;
+    }
+
+    // Create download using BOM for proper encoding in Excel
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('Berhasil export ke ' + filename, 'success');
 }
 
 function printLaporan() {
-  const printArea = document.getElementById('reportPrintArea');
-  if (!printArea) {
-    showToast('Tidak ada laporan untuk dicetak', 'warning');
-    return;
-  }
-  
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
+    const printArea = document.getElementById('reportPrintArea');
+    if (!printArea) {
+        showToast('Tidak ada laporan untuk dicetak', 'warning');
+        return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
     <!DOCTYPE html>
     <html>
     <head>
@@ -403,7 +403,7 @@ function printLaporan() {
     </body>
     </html>
   `);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
 }
